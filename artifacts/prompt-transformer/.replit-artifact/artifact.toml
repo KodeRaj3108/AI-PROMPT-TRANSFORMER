@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "AI Prompt Transformer"
+version = "1.0.0"
+id = "artifacts/prompt-transformer"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 23794
+
+[services.development]
+run = "pnpm --filter @workspace/prompt-transformer run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/prompt-transformer", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/prompt-transformer/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23794"
+BASE_PATH = "/"

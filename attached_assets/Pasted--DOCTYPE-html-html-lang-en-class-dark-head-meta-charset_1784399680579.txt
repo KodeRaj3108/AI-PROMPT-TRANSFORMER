@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Prompt Transformer</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          mono: ['"JetBrains Mono"', 'monospace'],
+          sans: ['Inter', 'sans-serif'],
+        },
+        colors: {
+          base: '#0a0b10',
+          panel: '#0f1117',
+        },
+        keyframes: {
+          scan: {
+            '0%': { transform: 'translateX(-100%)' },
+            '100%': { transform: 'translateX(100%)' },
+          },
+          pulseSoft: {
+            '0%,100%': { opacity: '0.4' },
+            '50%': { opacity: '1' },
+          },
+          toastIn: {
+            '0%': { transform: 'translateY(1rem)', opacity: '0' },
+            '100%': { transform: 'translateY(0)', opacity: '1' },
+          }
+        },
+        animation: {
+          scan: 'scan 1.6s linear infinite',
+          pulseSoft: 'pulseSoft 1.6s ease-in-out infinite',
+          toastIn: 'toastIn 0.25s ease-out',
+        }
+      }
+    }
+  }
+</script>
+<style>
+  html { scroll-behavior: smooth; }
+  body {
+    background:
+      radial-gradient(circle at 15% 0%, rgba(99,102,241,0.14), transparent 40%),
+      radial-gradient(circle at 85% 20%, rgba(139,92,246,0.10), transparent 45%),
+      #0a0b10;
+  }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 999px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
+
+  .glass {
+    background: rgba(255,255,255,0.035);
+    border: 1px solid rgba(255,255,255,0.08);
+    backdrop-filter: blur(16px);
+  }
+  .glass-strong {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.10);
+    backdrop-filter: blur(20px);
+  }
+  textarea:focus, input:focus, button:focus-visible {
+    outline: 2px solid rgba(139,92,246,0.6);
+    outline-offset: 2px;
+  }
+  .accent-line {
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent);
+  }
+  .card-scan-overlay {
+    background: linear-gradient(90deg, transparent, rgba(139,92,246,0.5), transparent);
+    width: 40%;
+  }
+  .skel {
+    background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.09) 37%, rgba(255,255,255,0.04) 63%);
+    background-size: 400% 100%;
+    animation: shimmer 1.6s ease-in-out infinite;
+  }
+  @keyframes shimmer {
+    0% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .animate-scan, .skel, .animate-pulseSoft { animation: none !important; }
+  }
+  .history-item:hover .history-dot { transform: scale(1.4); }
+</style>
+</head>
+<body class="min-h-screen text-slate-200 font-sans antialiased">
+
+<!-- ============ TOAST CONTAINER ============ -->
+<div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 items-end"></div>
+
+<!-- ============ CURSOR HELPER MODAL ============ -->
+<div id="cursorModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeCursorModal()"></div>
+  <div class="relative glass-strong rounded-2xl max-w-lg w-full p-6 shadow-2xl">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="h-9 w-9 rounded-lg bg-cyan-500/15 border border-cyan-400/30 flex items-center justify-center text-cyan-300 font-mono text-sm">⌘I</div>
+      <h3 class="text-lg font-semibold text-white">Send this to Cursor</h3>
+    </div>
+    <p class="text-sm text-slate-300 leading-relaxed mb-4">
+      Cursor doesn't accept pre-filled prompts via URL, so the text has been copied to your clipboard. To use it:
+    </p>
+    <ol class="text-sm text-slate-300 space-y-2 mb-5 list-decimal list-inside">
+      <li>Open Cursor, then press <kbd class="px-1.5 py-0.5 rounded bg-white/10 border border-white/15 font-mono text-xs">Ctrl+I</kbd> (Windows/Linux) or <kbd class="px-1.5 py-0.5 rounded bg-white/10 border border-white/15 font-mono text-xs">Cmd+I</kbd> (Mac) to open inline/composer chat.</li>
+      <li>Paste with <kbd class="px-1.5 py-0.5 rounded bg-white/10 border border-white/15 font-mono text-xs">Ctrl/Cmd+V</kbd>.</li>
+      <li>Or drop it straight into a <span class="font-mono text-cyan-300">.cursorrules</span> file at your project root to make it a persistent system prompt for the whole workspace.</li>
+    </ol>
+    <div class="flex justify-end gap-2">
+      <button onclick="copyCursorFromModal()" class="px-4 py-2 rounded-lg bg-cyan-500/20 border border-cyan-400/30 text-cyan-200 text-sm font-medium hover:bg-cyan-500/30 transition">Copy again</button>
+      <button onclick="closeCursorModal()" class="px-4 py-2 rounded-lg bg-white/10 border border-white/15 text-sm font-medium hover:bg-white/15 transition">Got it</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ HEADER ============ -->
+<header class="border-b border-white/5">
+  <div class="max-w-[1600px] mx-auto px-6 py-5 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="h-9 w-9 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center font-mono font-bold text-sm shadow-lg shadow-indigo-500/20">⌁</div>
+      <div>
+        <h1 class="text-base font-semibold text-white tracking-tight">AI Prompt Transformer</h1>
+        <p class="text-xs text-slate-400 font-mono">rough idea → 5 model-tuned prompts</p>
+      </div>
+    </div>
+    <div class="hidden sm:flex items-center gap-2 text-xs font-mono text-slate-400">
+      <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulseSoft"></span>
+      Claude engine connected — no API key required
+    </div>
+  </div>
+</header>
+
+<main class="max-w-[1600px] mx-auto px-6 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+  <!-- ============ LEFT PANEL: CONTROL CENTER ============ -->
+  <section class="lg:col-span-4 flex flex-col gap-5">
+
+    <!-- Engine status card (replaces API key field — see note) -->
+    <div class="glass rounded-2xl p-5">
+      <div class="flex items-center justify-between mb-2">
+        <h2 class="text-sm font-semibold text-white">Engine</h2>
+        <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-400/20">ready</span>
+      </div>
+      <p class="text-xs text-slate-400 leading-relaxed">
+        This artifact calls Claude through its built-in, pre-authorized connection — there's no Anthropic API key to paste in, and nothing is stored in <span class="font-mono">localStorage</span> for auth. Your prompt history below is stored locally in your browser.
+      </p>
+    </div>
+
+    <!-- Input card -->
+    <div class="glass rounded-2xl p-5 flex flex-col gap-4">
+      <div>
+        <label for="roughInput" class="text-sm font-semibold text-white mb-2 block">Your rough prompt</label>
+        <textarea id="roughInput" rows="8" placeholder="e.g. help me write something that explains our new pricing to customers who are annoyed about it"
+          class="w-full resize-none rounded-xl bg-black/30 border border-white/10 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 focus:border-violet-400/50 transition"></textarea>
+      </div>
+
+      <div id="errorBanner" class="hidden rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-xs text-rose-200"></div>
+
+      <button id="transformBtn" onclick="handleTransform()"
+        class="group relative overflow-hidden rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-600/20 hover:shadow-violet-500/30 transition disabled:opacity-50 disabled:cursor-not-allowed">
+        <span id="transformBtnLabel" class="relative z-10">Transform Prompt</span>
+        <span class="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-500"></span>
+      </button>
+    </div>
+
+    <!-- History card -->
+    <div class="glass rounded-2xl p-5 flex flex-col gap-3 flex-1 min-h-[240px]">
+      <div class="flex items-center justify-between">
+        <h2 class="text-sm font-semibold text-white">History</h2>
+        <button onclick="clearHistory()" class="text-[11px] font-mono text-slate-400 hover:text-rose-300 transition">clear all</button>
+      </div>
+      <div id="historyList" class="flex flex-col gap-2 overflow-y-auto max-h-[420px] pr-1">
+        <p id="historyEmpty" class="text-xs text-slate-500 italic">No transformations yet. Your history will appear here.</p>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ============ RIGHT PANEL: COMPARISON WORKSPACE ============ -->
+  <section class="lg:col-span-8">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-sm font-semibold text-white">Comparison workspace</h2>
+      <span class="text-[11px] font-mono text-slate-500">5 model-tuned outputs</span>
+    </div>
+    <div id="outputGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      <!-- Cards injected by JS -->
+    </div>
+  </section>
+
+</main>
+
+<footer class="max-w-[1600px] mx-auto px-6 pb-8 pt-2">
+  <p class="text-[11px] text-slate-600 font-mono">Runs entirely client-side. History is local to this browser only.</p>
+</footer>
+
+<script>
+// =========================================================================
+// CONFIG: model profiles
+// =========================================================================
+const MODEL_PROFILES = [
+  {
+    key: 'chatgpt',
+    label: 'ChatGPT',
+    accent: 'emerald',
+    testUrl: 'https://chatgpt.com',
+    rule: 'Clear step-by-step formatting, explicit system-role definition, and markdown structure (headers, numbered lists).'
+  },
+  {
+    key: 'claude',
+    label: 'Claude',
+    accent: 'orange',
+    testUrl: 'https://claude.ai',
+    rule: 'XML tags for variable isolation (<context>, <instructions>, <input>), structural clarity, and room for deep step-by-step reasoning.'
+  },
+  {
+    key: 'gemini',
+    label: 'Gemini',
+    accent: 'blue',
+    testUrl: 'https://gemini.google.com',
+    rule: 'Logical headings, explicit formatting instructions, and token-efficient, tightly scoped constraints.'
+  },
+  {
+    key: 'grok',
+    label: 'Grok',
+    accent: 'red',
+    testUrl: 'https://grok.com',
+    rule: 'Direct, no-nonsense logic, high-impact brevity, and real-time context scaffolding (assume access to current info).'
+  },
+  {
+    key: 'cursor',
+    label: 'Cursor',
+    accent: 'cyan',
+    testUrl: null,
+    rule: 'Precise code-context generation: file/folder structure hints, language + framework constraints, and .cursorrules-style directives.'
+  },
+];
+
+const ACCENT_CLASSES = {
+  emerald: { dot: 'bg-emerald-400', text: 'text-emerald-300', border: 'border-emerald-400/25', bg: 'bg-emerald-500/10' },
+  orange:  { dot: 'bg-orange-400',  text: 'text-orange-300',  border: 'border-orange-400/25',  bg: 'bg-orange-500/10' },
+  blue:    { dot: 'bg-blue-400',    text: 'text-blue-300',    border: 'border-blue-400/25',    bg: 'bg-blue-500/10' },
+  red:     { dot: 'bg-red-400',     text: 'text-red-300',     border: 'border-red-400/25',     bg: 'bg-red-500/10' },
+  cyan:    { dot: 'bg-cyan-400',    text: 'text-cyan-300',    border: 'border-cyan-400/25',    bg: 'bg-cyan-500/10' },
+};
+
+const HISTORY_KEY = 'apt_history_v1';
+const MAX_HISTORY = 25;
+
+let currentOutputs = null; // {chatgpt: '...', claude: '...', ...}
+let isLoading = false;
+let cursorClipboardText = '';
+
+// =========================================================================
+// INIT
+// =========================================================================
+document.addEventListener('DOMContentLoaded', () => {
+  renderOutputCards(null);
+  renderHistory();
+});
+
+// =========================================================================
+// TOASTS
+// =========================================================================
+function showToast(message, tone = 'default') {
+  const container = document.getElementById('toastContainer');
+  const toneClasses = tone === 'error'
+    ? 'border-rose-400/30 bg-rose-500/15 text-rose-100'
+    : 'border-white/10 bg-white/10 text-slate-100';
+  const el = document.createElement('div');
+  el.className = `animate-toastIn glass px-4 py-2.5 rounded-xl text-xs font-medium shadow-lg ${toneClasses}`;
+  el.textContent = message;
+  container.appendChild(el);
+  setTimeout(() => {
+    el.style.transition = 'opacity 0.3s ease';
+    el.style.opacity = '0';
+    setTimeout(() => el.remove(), 300);
+  }, 2400);
+}
+
+// =========================================================================
+// CLIPBOARD
+// =========================================================================
+async function copyToClipboard(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch (e) {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      return true;
+    } catch (e2) {
+      return false;
+    }
+  }
+}
+
+// =========================================================================
+// ERROR BANNER
+// =========================================================================
+function showError(msg) {
+  const banner = document.getElementById('errorBanner');
+  banner.textContent = msg;
+  banner.classList.remove('hidden');
+}
+function hideError() {
+  document.getElementById('errorBanner').classList.add('hidden');
+}
+
+// =========================================================================
+// RENDER OUTPUT CARDS
+// =========================================================================
+function renderOutputCards(outputs, loading = false) {
+  const grid = document.getElementById('outputGrid');
+  grid.innerHTML = '';
+
+  MODEL_PROFILES.forEach(profile => {
+    const acc = ACCENT_CLASSES[profile.accent];
+    const content = outputs ? outputs[profile.key] : null;
+
+    const card = document.createElement('div');
+    card.className = 'glass rounded-2xl p-4 flex flex-col gap-3 relative overflow-hidden min-h-[220px]';
+
+    card.innerHTML = `
+      ${loading ? `<div class="absolute top-0 left-0 h-0.5 card-scan-overlay animate-scan"></div>` : ''}
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="h-2 w-2 rounded-full ${acc.dot}"></span>
+          <h3 class="text-sm font-semibold text-white">${profile.label}</h3>
+        </div>
+        <span class="text-[10px] font-mono px-2 py-0.5 rounded-full ${acc.bg} ${acc.text} border ${acc.border}">${profile.key}</span>
+      </div>
+      <p class="text-[11px] text-slate-500 leading-snug">${profile.rule}</p>
+      <div class="flex-1 rounded-xl bg-black/30 border border-white/10 p-3 overflow-y-auto max-h-56" id="body-${profile.key}">
+        ${loading ? skeletonHTML() : (content ? escapeHTML(content).replace(/\n/g, '<br/>') : `<p class="text-xs text-slate-600 italic">Transform a prompt to see the ${profile.label}-optimized version here.</p>`)}
+      </div>
+      <div class="flex gap-2 pt-1">
+        <button ${!content ? 'disabled' : ''} onclick="handleCopy('${profile.key}')"
+          class="flex-1 text-xs font-medium rounded-lg px-3 py-2 bg-white/5 border border-white/10 hover:bg-white/10 transition disabled:opacity-30 disabled:cursor-not-allowed">
+          Copy
+        </button>
+        <button ${!content ? 'disabled' : ''} onclick="handleTest('${profile.key}')"
+          class="flex-1 text-xs font-medium rounded-lg px-3 py-2 ${acc.bg} ${acc.text} border ${acc.border} hover:brightness-125 transition disabled:opacity-30 disabled:cursor-not-allowed">
+          One-Click Test
+        </button>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function skeletonHTML() {
+  return `
+    <div class="flex flex-col gap-2">
+      <div class="h-3 rounded skel w-11/12"></div>
+      <div class="h-3 rounded skel w-4/5"></div>
+      <div class="h-3 rounded skel w-full"></div>
+      <div class="h-3 rounded skel w-2/3"></div>
+      <div class="h-3 rounded skel w-3/4"></div>
+    </div>
+  `;
+}
+
+function escapeHTML(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// =========================================================================
+// COPY / TEST HANDLERS
+// =========================================================================
+async function handleCopy(modelKey) {
+  if (!currentOutputs || !currentOutputs[modelKey]) return;
+  const ok = await copyToClipboard(currentOutputs[modelKey]);
+  showToast(ok ? `${labelFor(modelKey)} prompt copied` : 'Copy failed — select and copy manually', ok ? 'default' : 'error');
+}
+
+async function handleTest(modelKey) {
+  if (!currentOutputs || !currentOutputs[modelKey]) return;
+  const profile = MODEL_PROFILES.find(p => p.key === modelKey);
+  const text = currentOutputs[modelKey];
+
+  if (modelKey === 'cursor') {
+    cursorClipboardText = text;
+    await copyToClipboard(text);
+    openCursorModal();
+    return;
+  }
+
+  const ok = await copyToClipboard(text);
+  window.open(profile.testUrl, '_blank', 'noopener,noreferrer');
+  showToast(ok
+    ? `Copied — paste into ${profile.label} once the tab opens`
+    : `Opened ${profile.label} — copy failed, select text manually`, ok ? 'default' : 'error');
+}
+
+function labelFor(key) {
+  return MODEL_PROFILES.find(p => p.key === key)?.label || key;
+}
+
+// =========================================================================
+// CURSOR MODAL
+// =========================================================================
+function openCursorModal() {
+  const modal = document.getElementById('cursorModal');
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+function closeCursorModal() {
+  const modal = document.getElementById('cursorModal');
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+}
+async function copyCursorFromModal() {
+  const ok = await copyToClipboard(cursorClipboardText);
+  showToast(ok ? 'Cursor prompt copied again' : 'Copy failed — select manually', ok ? 'default' : 'error');
+}
+
+// =========================================================================
+// TRANSFORM — calls Claude via the sandbox's built-in API access
+// =========================================================================
+async function handleTransform() {
+  if (isLoading) return;
+  hideError();
+
+  const roughInput = document.getElementById('roughInput').value.trim();
+  if (!roughInput) {
+    showError('Enter a rough prompt before transforming.');
+    return;
+  }
+
+  isLoading = true;
+  setButtonLoading(true);
+  renderOutputCards(null, true);
+
+  try {
+    const outputs = await callClaudeForTransformation(roughInput);
+    currentOutputs = outputs;
+    renderOutputCards(outputs, false);
+    saveToHistory(roughInput, outputs);
+    renderHistory();
+    showToast('Prompt transformed into 5 model-tuned versions');
+  } catch (err) {
+    console.error(err);
+    showError(err.message || 'Something went wrong while transforming the prompt. Please try again.');
+    renderOutputCards(null, false);
+  } finally {
+    isLoading = false;
+    setButtonLoading(false);
+  }
+}
+
+function setButtonLoading(loading) {
+  const btn = document.getElementById('transformBtn');
+  const label = document.getElementById('transformBtnLabel');
+  btn.disabled = loading;
+  label.textContent = loading ? 'Transforming…' : 'Transform Prompt';
+}
+
+async function callClaudeForTransformation(roughInput) {
+  const systemPrompt = `You are a prompt engineering specialist. You will be given a single rough, unstructured prompt from a user. Your job is to rewrite it into 5 distinct, optimized versions — one tailored for each of these AI systems, each following that system's specific design conventions:
+
+1. chatgpt: Clear step-by-step formatting, an explicit system-role definition line, and markdown structure (headers, numbered lists).
+2. claude: Use XML tags to isolate variables, e.g. <context>, <instructions>, <input> — structurally clear, and leave room for deep step-by-step reasoning.
+3. gemini: Organize with logical headings, give explicit formatting instructions, keep it token-efficient and tightly constrained.
+4. grok: Direct, no-nonsense, high-impact brevity, and include real-time context scaffolding (phrase it assuming access to current/live information where relevant).
+5. cursor: Precise code-context generation — reference file/folder structure where relevant, specify language/framework, and phrase it like a .cursorrules-style system directive.
+
+Rewrite the user's underlying intent faithfully — do not add requirements they didn't imply. Keep each of the 5 outputs compact (roughly 3-7 lines / under 90 words each) since output length is limited, while still clearly reflecting that model's distinct conventions.
+
+Respond with ONLY a raw JSON object, no markdown code fences, no preamble, no commentary, in exactly this shape:
+{"chatgpt": "...", "claude": "...", "gemini": "...", "grok": "...", "cursor": "..."}`;
+
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-6",
+      max_tokens: 1000,
+      system: systemPrompt,
+      messages: [
+        { role: "user", content: `Rough prompt to transform:\n\n${roughInput}` }
+      ],
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error(`Request failed (status ${response.status}). Please try again.`);
+  }
+
+  const data = await response.json();
+  const textBlocks = (data.content || []).filter(b => b.type === 'text').map(b => b.text);
+  const rawText = textBlocks.join('\n').trim();
+
+  if (!rawText) {
+    throw new Error('The engine returned an empty response. Please try again.');
+  }
+
+  const cleaned = rawText.replace(/^```json/i, '').replace(/^```/, '').replace(/```$/, '').trim();
+
+  let parsed;
+  try {
+    parsed = JSON.parse(cleaned);
+  } catch (e) {
+    throw new Error('Could not parse a structured response from the engine. Please try again.');
+  }
+
+  const required = ['chatgpt', 'claude', 'gemini', 'grok', 'cursor'];
+  for (const key of required) {
+    if (typeof parsed[key] !== 'string' || !parsed[key].trim()) {
+      throw new Error(`The response was missing the "${key}" output. Please try again.`);
+    }
+  }
+
+  return parsed;
+}
+
+// =========================================================================
+// HISTORY (localStorage)
+// =========================================================================
+function loadHistory() {
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveToHistory(roughInput, outputs) {
+  const history = loadHistory();
+  const entry = {
+    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    timestamp: Date.now(),
+    rough: roughInput,
+    outputs,
+  };
+  history.unshift(entry);
+  const trimmed = history.slice(0, MAX_HISTORY);
+  try {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(trimmed));
+  } catch (e) {
+    // storage full or unavailable — fail silently, transformation still shown on screen
+  }
+}
+
+function renderHistory() {
+  const history = loadHistory();
+  const list = document.getElementById('historyList');
+  const empty = document.getElementById('historyEmpty');
+
+  list.innerHTML = '';
+
+  if (history.length === 0) {
+    list.appendChild(empty);
+    return;
+  }
+
+  history.forEach(entry => {
+    const item = document.createElement('button');
+    item.className = 'history-item text-left w-full rounded-xl px-3 py-2.5 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-violet-400/30 transition group';
+    item.onclick = () => loadHistoryEntry(entry.id);
+
+    const date = new Date(entry.timestamp);
+    const timeStr = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' · ' + date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+
+    item.innerHTML = `
+      <div class="flex items-start gap-2">
+        <span class="history-dot h-1.5 w-1.5 rounded-full bg-violet-400 mt-1.5 transition-transform"></span>
+        <div class="min-w-0 flex-1">
+          <p class="text-xs text-slate-200 truncate">${escapeHTML(entry.rough)}</p>
+          <p class="text-[10px] text-slate-500 font-mono mt-0.5">${timeStr}</p>
+        </div>
+      </div>
+    `;
+    list.appendChild(item);
+  });
+}
+
+function loadHistoryEntry(id) {
+  const history = loadHistory();
+  const entry = history.find(h => h.id === id);
+  if (!entry) return;
+
+  document.getElementById('roughInput').value = entry.rough;
+  currentOutputs = entry.outputs;
+  renderOutputCards(entry.outputs, false);
+  hideError();
+  showToast('Loaded from history');
+}
+
+function clearHistory() {
+  try {
+    localStorage.removeItem(HISTORY_KEY);
+  } catch (e) {}
+  renderHistory();
+  showToast('History cleared');
+}
+</script>
+</body>
+</html>
