@@ -1,0 +1,27 @@
+kind = "slides"
+previewPath = "/prompt-transformer-deck/"
+title = "AI Prompt Transformer Deck"
+version = "1.0.0"
+id = "artifacts/prompt-transformer-deck"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/prompt-transformer-deck/" ]
+localPort = 18610
+
+[services.development]
+run = "pnpm --filter @workspace/prompt-transformer-deck run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/prompt-transformer-deck", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/prompt-transformer-deck/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18610"
+BASE_PATH = "/prompt-transformer-deck/"

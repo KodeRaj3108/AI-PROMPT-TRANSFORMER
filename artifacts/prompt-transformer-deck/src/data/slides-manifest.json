@@ -1,0 +1,42 @@
+[
+  {
+    "id": "a1b2c3d4-1111-4000-8000-000000000001",
+    "position": 1,
+    "filepath": "src/pages/slides/Slide1Title.tsx",
+    "title": "AI Prompt Transformer",
+    "description": "Title slide — hero image with tagline",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-2222-4000-8000-000000000002",
+    "position": 2,
+    "filepath": "src/pages/slides/Slide2Problem.tsx",
+    "title": "The Problem with Generic Prompts",
+    "description": "Three key pain points of one-size-fits-all prompting",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-3333-4000-8000-000000000003",
+    "position": 3,
+    "filepath": "src/pages/slides/Slide3HowItWorks.tsx",
+    "title": "How It Works",
+    "description": "4-step transformation process",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-4444-4000-8000-000000000004",
+    "position": 4,
+    "filepath": "src/pages/slides/Slide4ModelProfiles.tsx",
+    "title": "5 Model Profiles",
+    "description": "ChatGPT, Claude, Gemini, Grok, and Cursor profiles",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-5555-4000-8000-000000000005",
+    "position": 5,
+    "filepath": "src/pages/slides/Slide5GetStarted.tsx",
+    "title": "Get Started in Seconds",
+    "description": "4 steps to start transforming prompts",
+    "speakerNotes": ""
+  }
+]
