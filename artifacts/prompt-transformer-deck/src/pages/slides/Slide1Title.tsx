@@ -14,7 +14,6 @@ export default function Slide1Title() {
             'radial-gradient(circle at 15% 0%, rgba(99,102,241,0.28), transparent 45%), radial-gradient(circle at 85% 100%, rgba(139,92,246,0.2), transparent 45%)',
         }}
       />
-
       {/* Hero image */}
       <img
         src={`${base}hero.jpg`}
@@ -23,7 +22,6 @@ export default function Slide1Title() {
         className="absolute inset-0 w-full h-full object-cover"
         style={{ opacity: 0.22 }}
       />
-
       {/* Bottom-up gradient: make text legible */}
       <div
         className="absolute inset-0"
@@ -32,7 +30,6 @@ export default function Slide1Title() {
             'linear-gradient(to top, #0a0b10 38%, rgba(10,11,16,0.55) 68%, transparent 100%)',
         }}
       />
-
       {/* Top-left subtle vignette */}
       <div
         className="absolute inset-0"
@@ -41,7 +38,6 @@ export default function Slide1Title() {
             'radial-gradient(ellipse at 0% 100%, rgba(10,11,16,0.7) 0%, transparent 55%)',
         }}
       />
-
       {/* Content — pinned to bottom-left */}
       <div className="absolute left-0 right-0 bottom-0 px-[6vw] pb-[7vh]">
 
@@ -68,7 +64,7 @@ export default function Slide1Title() {
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
             }}
-          >
+            className="font-extrabold text-[18px]">
             AI Prompt Transformer
           </span>
         </div>
