@@ -12,7 +12,6 @@ export default function Slide5GetStarted() {
             'radial-gradient(circle at 85% 0%, rgba(99,102,241,0.22), transparent 45%), radial-gradient(circle at 15% 100%, rgba(139,92,246,0.16), transparent 45%)',
         }}
       />
-
       {/* Decorative glow orb top-right */}
       <div
         className="absolute"
@@ -25,7 +24,6 @@ export default function Slide5GetStarted() {
           background: 'radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%)',
         }}
       />
-
       <div className="relative flex flex-col h-full px-[5vw] pt-[6vh] pb-[6vh]">
 
         {/* Header */}
@@ -87,9 +85,7 @@ export default function Slide5GetStarted() {
             >
               01
             </div>
-            <p className="text-slate-200 font-display leading-relaxed" style={{ fontSize: '2vw', textWrap: 'pretty' }}>
-              Get a free API key at console.anthropic.com
-            </p>
+            <p className="text-slate-200 font-display leading-relaxed" style={{ fontSize: '2vw', textWrap: 'pretty' }}>Get an API key at console.anthropic.com</p>
           </div>
 
           {/* Step 2 */}
