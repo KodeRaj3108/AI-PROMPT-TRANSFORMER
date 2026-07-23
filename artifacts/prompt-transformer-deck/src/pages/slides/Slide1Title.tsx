@@ -43,19 +43,12 @@ export default function Slide1Title() {
 
         {/* Logo mark + name */}
         <div className="flex items-center mb-[2.5vh]" style={{ gap: '1vw' }}>
-          <div
-            className="flex items-center justify-center font-mono font-bold text-white"
-            style={{
-              width: '3vw',
-              height: '3vw',
-              fontSize: '1.4vw',
-              borderRadius: '0.6vw',
-              background: 'linear-gradient(135deg, #6366f1, #7c3aed)',
-              boxShadow: '0 0 28px rgba(99,102,241,0.55)',
-            }}
-          >
-            ⌁
-          </div>
+          <img
+            src={`${base}icon.svg`}
+            crossOrigin="anonymous"
+            alt="AI Prompt Transformer"
+            style={{ width: '3vw', height: '3vw', filter: 'drop-shadow(0 0 10px rgba(99,102,241,0.6))' }}
+          />
           <span
             style={{
               fontFamily: 'JetBrains Mono, monospace',
@@ -64,7 +57,7 @@ export default function Slide1Title() {
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
             }}
-            className="font-extrabold text-[18px]">
+          >
             AI Prompt Transformer
           </span>
         </div>

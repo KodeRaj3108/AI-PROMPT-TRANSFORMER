@@ -1,3 +1,5 @@
+const base = import.meta.env.BASE_URL;
+
 export default function Slide5GetStarted() {
   return (
     <div
@@ -184,18 +186,12 @@ export default function Slide5GetStarted() {
         <div className="flex items-center justify-center mt-[3vh]" style={{ gap: '1.5vw' }}>
           <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
           <div className="flex items-center" style={{ gap: '0.8vw' }}>
-            <div
-              className="flex items-center justify-center font-mono font-bold text-white"
-              style={{
-                width: '2vw',
-                height: '2vw',
-                fontSize: '0.9vw',
-                borderRadius: '0.4vw',
-                background: 'linear-gradient(135deg, #6366f1, #7c3aed)',
-              }}
-            >
-              ⌁
-            </div>
+            <img
+              src={`${base}icon.svg`}
+              crossOrigin="anonymous"
+              alt="AI Prompt Transformer"
+              style={{ width: '2vw', height: '2vw' }}
+            />
             <span
               style={{
                 fontFamily: 'JetBrains Mono, monospace',

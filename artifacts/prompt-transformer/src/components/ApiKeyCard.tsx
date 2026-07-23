@@ -29,7 +29,7 @@ export function ApiKeyCard({ apiKey, setApiKey }: ApiKeyCardProps) {
       <div className="glass rounded-2xl p-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-lg bg-orange-500/15 border border-orange-400/30 flex items-center justify-center text-orange-300 font-mono text-sm">C</div>
+            <img src="/icon.svg" alt="" className="h-8 w-8 flex-shrink-0" />
             <div>
               <h2 className="text-sm font-semibold text-white">Connected to Claude</h2>
               <div className="flex items-center gap-2 mt-0.5">
@@ -49,7 +49,7 @@ export function ApiKeyCard({ apiKey, setApiKey }: ApiKeyCardProps) {
   return (
     <div className="glass rounded-2xl p-5">
       <div className="flex items-center gap-3 mb-3">
-        <div className="h-8 w-8 rounded-lg bg-orange-500/15 border border-orange-400/30 flex items-center justify-center text-orange-300 font-mono text-sm">C</div>
+        <img src="/icon.svg" alt="" className="h-8 w-8 flex-shrink-0" />
         <h2 className="text-sm font-semibold text-white">Connect to Claude</h2>
       </div>
       <p className="text-xs text-slate-400 leading-relaxed mb-4">

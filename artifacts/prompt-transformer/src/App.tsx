@@ -83,13 +83,14 @@ function AppContent() {
       <header className="border-b border-white/5 sticky top-0 z-20 backdrop-blur-md bg-[#0a0b10]/80">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center font-mono font-bold text-sm shadow-lg shadow-indigo-500/20 text-white flex-shrink-0">
-              ⌁
+            {/* Mobile: icon mark + text stacked */}
+            <img src="/icon.svg" alt="AI Prompt Transformer" className="h-8 w-8 sm:hidden flex-shrink-0" />
+            <div className="sm:hidden">
+              <h1 className="text-sm font-semibold text-white tracking-tight">AI Prompt Transformer</h1>
+              <p className="text-[10px] text-slate-400 font-mono">rough idea → 5 model-tuned prompts</p>
             </div>
-            <div>
-              <h1 className="text-sm sm:text-base font-semibold text-white tracking-tight">AI Prompt Transformer</h1>
-              <p className="text-[10px] sm:text-xs text-slate-400 font-mono">rough idea → 5 model-tuned prompts</p>
-            </div>
+            {/* Desktop: full logo wordmark */}
+            <img src="/logo.svg" alt="AI Prompt Transformer" className="hidden sm:block h-12" />
           </div>
           <div className="flex items-center gap-2 text-xs font-mono text-slate-400">
             {apiKey ? (
