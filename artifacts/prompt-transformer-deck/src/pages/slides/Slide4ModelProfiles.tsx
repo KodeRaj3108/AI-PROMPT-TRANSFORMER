@@ -62,7 +62,7 @@ export default function Slide4ModelProfiles() {
               gap: '2vw',
             }}
           >
-            <img src={`${base}icons/chatgpt.svg`} crossOrigin="anonymous" alt="ChatGPT" style={{ width: '2.4vw', height: '2.4vw', flexShrink: 0 }} />
+            <img src={`${base}icons/chatgpt.png`} crossOrigin="anonymous" alt="ChatGPT" style={{ width: '2.4vw', height: '2.4vw', flexShrink: 0 }} />
             <div className="font-display font-bold text-white" style={{ fontSize: '2.8vw', width: '16vw', flexShrink: 0 }}>ChatGPT</div>
             <div
               style={{
@@ -95,7 +95,7 @@ export default function Slide4ModelProfiles() {
               gap: '2vw',
             }}
           >
-            <img src={`${base}icons/claude.svg`} crossOrigin="anonymous" alt="Claude" style={{ width: '2.4vw', height: '2.4vw', flexShrink: 0 }} />
+            <img src={`${base}icons/claude.png`} crossOrigin="anonymous" alt="Claude" style={{ width: '2.4vw', height: '2.4vw', flexShrink: 0 }} />
             <div className="font-display font-bold text-white" style={{ fontSize: '2.8vw', width: '16vw', flexShrink: 0 }}>Claude</div>
             <div
               style={{
@@ -128,7 +128,7 @@ export default function Slide4ModelProfiles() {
               gap: '2vw',
             }}
           >
-            <img src={`${base}icons/gemini.svg`} crossOrigin="anonymous" alt="Gemini" style={{ width: '2.4vw', height: '2.4vw', flexShrink: 0 }} />
+            <img src={`${base}icons/gemini.png`} crossOrigin="anonymous" alt="Gemini" style={{ width: '2.4vw', height: '2.4vw', flexShrink: 0 }} />
             <div className="font-display font-bold text-white" style={{ fontSize: '2.8vw', width: '16vw', flexShrink: 0 }}>Gemini</div>
             <div
               style={{
@@ -161,7 +161,7 @@ export default function Slide4ModelProfiles() {
               gap: '2vw',
             }}
           >
-            <img src={`${base}icons/grok.svg`} crossOrigin="anonymous" alt="Grok" style={{ width: '2.4vw', height: '2.4vw', flexShrink: 0 }} />
+            <img src={`${base}icons/grok.png`} crossOrigin="anonymous" alt="Grok" style={{ width: '2.4vw', height: '2.4vw', flexShrink: 0 }} />
             <div className="font-display font-bold text-white" style={{ fontSize: '2.8vw', width: '16vw', flexShrink: 0 }}>Grok</div>
             <div
               style={{
@@ -194,7 +194,7 @@ export default function Slide4ModelProfiles() {
               gap: '2vw',
             }}
           >
-            <img src={`${base}icons/cursor.svg`} crossOrigin="anonymous" alt="Cursor" style={{ width: '2.4vw', height: '2.4vw', flexShrink: 0 }} />
+            <img src={`${base}icons/cursor.png`} crossOrigin="anonymous" alt="Cursor" style={{ width: '2.4vw', height: '2.4vw', flexShrink: 0 }} />
             <div className="font-display font-bold text-white" style={{ fontSize: '2.8vw', width: '16vw', flexShrink: 0 }}>Cursor</div>
             <div
               style={{

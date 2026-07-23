@@ -110,7 +110,7 @@ export function OutputCard({ profile, content, loading, onOpenCursorModal }: Out
       {/* Card header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <img src={`/icons/${profile.key}.svg`} alt={profile.label} className="h-5 w-5 flex-shrink-0" />
+          <img src={`/icons/${profile.key}.png`} alt={profile.label} className="h-5 w-5 flex-shrink-0" />
           <h3 className="text-sm font-semibold text-white">{profile.label}</h3>
         </div>
         <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${acc.bg} ${acc.text} border ${acc.border}`}>
