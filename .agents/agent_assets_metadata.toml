@@ -6,3 +6,9 @@ id = "UnFbaxHGtiDtKuLt3IZrv"
 uri = "file://.local/outputs/Asset-Manager.pptx"
 type = "slides"
 title = "Asset Manager.pptx"
+
+[[outputs]]
+id = "3Iq5r7-4mbb0lFn-zU-eJ"
+uri = "file://.local/outputs/AI-Prompt-Transformer-Deck.pptx"
+type = "slides"
+title = "AI Prompt Transformer Deck.pptx"
